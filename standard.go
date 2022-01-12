@@ -17,6 +17,11 @@ type (
 	}
 )
 
+var (
+	_ db.DB = (*DB)(nil)
+	_ db.Tx = (*Tx)(nil)
+)
+
 func (d *DB) Close() error {
 	return d.DB.Close()
 }
@@ -25,15 +30,27 @@ func (d *DB) Exec(query string, args ...interface{}) (db.Result, error) {
 	return d.DB.Exec(query, args...)
 }
 
+func (d *DB) ExecContext(ctx context.Context, query string, args ...interface{}) (db.Result, error) {
+	return d.DB.ExecContext(ctx, query, args...)
+}
+
 func (d *DB) Query(query string, args ...interface{}) (db.Rows, error) {
 	return d.DB.Query(query, args...)
+}
+
+func (d *DB) QueryContext(ctx context.Context, query string, args ...interface{}) (db.Rows, error) {
+	return d.DB.QueryContext(ctx, query, args...)
 }
 
 func (d *DB) QueryRow(query string, args ...interface{}) db.Row {
 	return d.DB.QueryRow(query, args...)
 }
 
-func (d *DB) BeginTx(ctx context.Context, isolationLevel string) (db.Tx, error) {
+func (d *DB) QueryRowContext(ctx context.Context, query string, args ...interface{}) db.Row {
+	return d.DB.QueryRowContext(ctx, query, args...)
+}
+
+func (d *DB) BeginTx(ctx context.Context, isolationLevel string, readOnly bool) (db.Tx, error) {
 	var isolation sql.IsolationLevel
 	switch isolationLevel {
 	case "serializable":
@@ -47,6 +64,7 @@ func (d *DB) BeginTx(ctx context.Context, isolationLevel string) (db.Tx, error) 
 	}
 	tx, err := d.DB.BeginTx(ctx, &sql.TxOptions{
 		Isolation: isolation,
+		ReadOnly:  readOnly,
 	})
 	return &Tx{tx}, err
 }
