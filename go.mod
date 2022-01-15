@@ -2,4 +2,4 @@ module github.com/gopsql/standard
 
 go 1.16
 
-require github.com/gopsql/db v1.2.0
+require github.com/gopsql/db v1.2.1

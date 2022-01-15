@@ -10,12 +10,20 @@ import (
 type (
 	DB struct {
 		*sql.DB
+		driverName string
 	}
 
 	Tx struct {
 		*sql.Tx
 	}
 )
+
+func NewDB(driverName string, db *sql.DB) *DB {
+	return &DB{
+		db,
+		driverName,
+	}
+}
 
 var (
 	_ db.DB = (*DB)(nil)
@@ -24,6 +32,10 @@ var (
 
 func (d *DB) Close() error {
 	return d.DB.Close()
+}
+
+func (d *DB) DriverName() string {
+	return d.driverName
 }
 
 func (d *DB) Exec(query string, args ...interface{}) (db.Result, error) {
